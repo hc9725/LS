@@ -70,16 +70,16 @@ ret dinsertbeforen(Dlinklist p, void *e, int index)//在任意结点前插入结
 	
 	if(p!=NULL)
 	{
-		int j=dlistlength(p);
-		if(j>index)
-		{
+	//	int j=dlistlength(p);
+	//	if(j>index)
+	//	{
 			Dlinklist s;
 			int i;
 			s = dmakenode(e);
 			if(NULL == s) 
 			return(ERROR);
 			//is->data = e;
-			Dlinklist head = dgethead(p);
+			Dlinklist head = p;
 			Dlinklist fhead = head;
 			for(i=0;i<index;i++)
 			{
@@ -90,8 +90,8 @@ ret dinsertbeforen(Dlinklist p, void *e, int index)//在任意结点前插入结
 			fhead->prior->next = s;
 			fhead->prior = s;
 			return OK;
-		}
-		else return NO;
+	//	}
+	//	else return NO;
 	}
 	else return NO;
 
@@ -243,8 +243,8 @@ int dlistlength(Dlinklist p)
 	if(p!=NULL)
 	{
 		int i=1;
-		Dlinklist head = dgethead(p);
-		Dlinklist ptmp = head->next;
+		//Dlinklist head = dgethead(p);
+		Dlinklist ptmp = p->next;
 		//while(ptmp != head)
 		while(ptmp->data !=NULL)
 		{
@@ -280,7 +280,6 @@ Dlinklist dscan(Dlinklist p, VisitFunc visit)
 			return NULL;
 		}	
 		else
-/////////////////////////////////////
 		{	
 			void *retp = NULL;
 			while(p->next !=p)
@@ -315,7 +314,6 @@ Dlinklist drescan(Dlinklist p, VisitFunc visit)
 			return NULL;
 		}	
 		else
-/////////////////////////////////////
 		{	
 			void *retp = NULL;
 			while(p->prior !=p)
@@ -333,25 +331,6 @@ void ddestroylist(Dlinklist p)
 {
 	if(p!=NULL)
 	{
-	//	Dlinklist tmpp1 = dgethead(p);
-/******		Dlinklist tmpp2 ;
-		while(p->next != p)
-		{
-			tmpp2 = p->next;
-			p-> next = tmpp2->next;
-			tmpp2->next->prior = p;
-			free(tmpp2);
-		}
-*/	
-/*	for(; tmpp1->next != tmpp1; )
-		{
-			tmpp2 = tmpp1->next;
-			tmpp1-> next = tmpp2->next;
-			tmpp2->next->prior = tmpp1;
-			free(tmpp2);
-		}
-		if(tmpp1 !=NULL)
-	*/
 	p = dclearlist(p);	
 	p=NULL;
 	free(p);
@@ -406,7 +385,7 @@ ret  sortlist(Dlinklist p,int cmpall(const void *a,const void *b))
 	}
 	else
 	{
-		Dlinklist head = dgethead(p);
+		//Dlinklist head = dgethead(p);
 		Dlinklist p1=NULL;
 		Dlinklist p2=NULL;
 		Dlinklist p3=malloc(sizeof(Dlnode));	
@@ -421,7 +400,7 @@ ret  sortlist(Dlinklist p,int cmpall(const void *a,const void *b))
 			int docmp=1;
 			while(docmp)
 			{
-				p1 = head->next;
+				p1 = p->next;
 				p2 = p1->next;
 				docmp =0;
 				while(p2->data !=NULL)
@@ -440,89 +419,6 @@ ret  sortlist(Dlinklist p,int cmpall(const void *a,const void *b))
 			}
 		
 		
-		
-		/*	switch(ctrl)
-			{
-			case 'c':
-			{
-				int docmp =1;
-				p1=head->next;	
-				p2=p1->next;
-				while(docmp)
-				{
-					p1=head->next;	
-					p2=p1->next;
-					docmp =0;
-					while(p2->data != NULL)
-					{
-						if(chgcmp(p1->data,p2->data) > 0)
-						{
-							p3->data = p1->data;
-							p1->data =  p2->data;
-							p2->data = p3->data;
-							docmp = 1;					
-						}
-						p1=p1->next;
-						p2=p2->next;
-					}
-				}	
-			};break;
-			case 'n':
-			{
-				
-				int docmp =1;
-				p1=head->next;	
-				p2=p1->next;
-				while(docmp)
-				{
-					p1=head->next;	
-					p2=p1->next;
-					docmp =0;
-					while(p2->data != NULL)
-					{
-						if(*(int *)p1->data > * (int *)p2->data)
-						{
-							p3->data = p1->data;
-							p1->data =  p2->data;
-							p2->data = p3->data;
-							docmp = 1;					
-						}
-						p1=p1->next;
-						p2=p2->next;
-					}
-				}
-			};break;
-			case 's':
-			{
-				
-				int docmp =1;
-				p1=head->next;	
-				p2=p1->next;
-				while(docmp)
-				{
-					p1=head->next;	
-					p2=p1->next;
-					docmp =0;
-					while(p2->data != NULL)
-					{
-						ST *stp1 = (ST *)p1->data;
-						ST *stp2 = (ST *)p2->data;
-
-						if(stp1->aint  > stp2->aint)
-						{
-							p3->data = p1->data;
-							p1->data =  p2->data;
-							p2->data = p3->data;
-							docmp = 1;					
-						}
-						p1=p1->next;
-						p2=p2->next;
-					}
-				}
-			};break;
-			default :printf("input wornt");break;
-		}
-	*/
 		}
 		free(p3);
 	return OK;
@@ -535,7 +431,125 @@ return NO;
 //{
 //	return  strcmp((const char *) a, ( const char *) b);
 //}
+//快速排序
+ret  quicksortlist(Dlinklist p,int cmpall(const void *a,const void *b))
+{
+	if(p==NULL)
+	{
+		printf("a NULL list occord");
+		return NO;
+	}
+	else
+	{
+		int len = dlistlength(p);
+	//	printf("the length of the list is %d\n",len);
+		if(len < 2)
+		{
+			return OK;
+		}
+		else
+		{
+			int left = 1;
+			int right = len - 1;
+			quicksort(p->next, p->prior, left, right, cmpall);
+			//printf("the leftnode to sort  is  %c   the right node to sort is %c  \n",*(char *)p->next->data,*(char *)p->prior->data);
+		}
+	}
 
+
+}
+//递归快排
+//void quicksortonce(Dlinklist leftlist, Dlinklist rightlist , int left,int right, int cmpall(const void *a,const void *b))
+//{
+//	int n = quicksortonce( leftlist, rightlist , left,right, cmpall(const void *a,const void *b));
+//	if(n > left)
+//	int n = quicksortonce( leftlist, rightlist , left,right, cmpall(const void *a,const void *b));
+//	if(n && n <= right)
+//	int n = quicksortonce( leftlist, rightlist , left,right, cmpall(const void *a,const void *b));
+//
+//}
+void quicksort(Dlinklist leftlist, Dlinklist rightlist , int left,int right, int cmpall(const void *a,const void *b))
+{
+	//printf("in the quicksort///////////////////////\n");
+//	printf("left is %d right is %d   ",left, right);
+//	printf("the leftnode is  %c   the right node is %c  \n",*(char *)leftlist->data,*(char *)rightlist->data);
+	if(left < right)
+	{
+		Dlinklist baselist = leftlist;
+//		printf("the baselist node is   %c \n",*(char *)baselist->data);
+		Dlinklist curleftlist = leftlist;
+		Dlinklist currightlist = rightlist;
+		leftlist = leftlist->prior;
+		rightlist = rightlist->next;
+		Dlinklist p;
+		Dlinklist q;
+		int curleft = left;
+		int curright = right;
+		while(curright > curleft)
+		{
+			while(curright > left && (cmpall(baselist->data,currightlist->data) < 0))
+			{
+				//printf("to find a small one curleft is %d  curright is %d    \n ",curleft,curright);
+				//printf("the curleftnode is  %c   the curright node is %c  \n",*(char *)curleftlist->data,*(char *)currightlist->data);
+				currightlist = currightlist->prior;
+//				printf(" the curright node'prior node  is %c  \n",*(char *)currightlist->data);
+				curright--;
+			}
+//			printf("now the curright is \\\\\\\\\\\\\\ %d\n ", curright);
+			while(curleft < right && (cmpall(baselist->data,curleftlist->data) > 0))
+			{
+				//printf(" to find the bigger one curleft is %d  curright is %d    \n ",curleft,curright);
+				//printf("the curleftnode is  %c   the curright node is %c  \n",*(char *)curleftlist->data,*(char *)currightlist->data);
+				curleftlist = curleftlist->next;
+				curleft++;
+			}
+
+			//exchange(curleftlist->data,currightlist->data);
+			if(curleft < curright)	
+			{
+				//printf("here one changelxlxlxlxllxlxxlxllxlxlxl\n");
+				p = curleftlist->prior;
+				q = currightlist->next;
+				curleftlist->next->prior = p; //del curleftlist
+				p->next = curleftlist->next;
+				currightlist->prior->next=q;//del currightlist
+				q->prior = currightlist->prior;
+				currightlist->next = p->next;//add currightlist
+				currightlist->prior = p;
+				p->next->prior = currightlist;
+				p->next =currightlist;
+				curleftlist->next = q;//add currleftlist
+				curleftlist->prior = q->prior;
+				q->prior->next = curleftlist;
+				q->prior = curleftlist;
+			
+			curright--;
+			curleft++;
+			curleftlist = p->next->next;//back where it was
+			currightlist = q->prior->prior;
+			}	
+		}
+		//baselist->prior->next = baselist->next;//move the base(the left node ) to the curleftlist node's next;
+		//baselist->next->prior = baselist->prior;
+		//baselist->next = currightlist->next;
+		//baselist->prior = currightlist;
+		//currightlist->next->prior = baselist;
+		//currightlist->next = baselist;
+		//if(curleft < curright)
+		//{
+		if(left < curright)
+		{
+//		printf("here from if left is %d   curright is %d \n",left,curright);
+			quicksort(leftlist->next,currightlist->prior,left,curright-1,cmpall);//recurse
+		}
+		if(right > curleft)
+		{
+			quicksort(currightlist->next,rightlist->prior,curright+1,right,cmpall); 
+		}
+	//}
+	}
+	exit(1);
+}
 
 //将两个链表合二为一
 Dlinklist  mergelist(Dlinklist pa, Dlinklist pb)
@@ -553,50 +567,6 @@ Dlinklist  mergelist(Dlinklist pa, Dlinklist pb)
 	}
 	else
 	{
-/*	
-		Dlinklist pah,pbh,pch,pal,pbl;
-		pah = pa->next; 
-		pbh = pb->next;
-		pal = pa->prior; 
-		pbl = pb->prior;
-		pa->prior = NULL;
-		pb->prior = NULL;
-		pal->next = NULL;	
-		pbl->next = NULL;
-		pc = pch = pa;		
-		while(pah && pbh)
-		{
-			if(chgcmp(pah->data, pbh->data)<1)
-			{
-				pch->next = pah;
-				pah->prior = pch;
-				pch=pah;
-				pah=pah->next;
-			}
-			else 
-			{
-				pch->next =  pbh; 
-				pbh->prior = pch;
-				pch = pbh; 
-				pbh = pbh->next;
-			}
-
-		}
-	if(pah)
-	{
-		pch->next = pc;
-		//pal->next = pc;
-		pc->prior = pch;
-	}
-	else 
-	{
-		pch->next = pc;
-		//pbl->next=pc;
-		pc->prior = pch;
-	}
-	free(pb);
-	return pc;
-*/
 	pa->prior->next = pb->next;
 	pb->next->prior = pa->prior;
 	pa->prior = pb->prior;

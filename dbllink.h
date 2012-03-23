@@ -1,5 +1,10 @@
 #ifndef DBLLINK_H
 #define DBLLINK_H
+typedef struct
+{
+	int frq;
+	char *word;
+}STWD;
 	typedef struct  
 	{
 		int aint;
@@ -40,6 +45,8 @@ void ddestroylist(Dlinklist p);// 销毁某个表
 Dlinklist dclearlist(Dlinklist p);//将链表置空
 ret disempty(Dlinklist p);//判断表是否为空表
 ret sortlist(Dlinklist p, int cmpall(const void *a,const void *b));//升序排列
+ret quicksortlist(Dlinklist p, int cmpall(const void *a,const void *b));//升序排列
+void quicksort(Dlinklist leftlist, Dlinklist rightlist , int left,int right, int cmpall(const void *a,const void *b));
 //void sortdec();//降序排列  = 升序排列 ＋ 逆序遍历即可
 Dlinklist  mergelist(Dlinklist pa, Dlinklist pb);//将两个链表合二为一
 
