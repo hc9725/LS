@@ -1,4 +1,5 @@
-#include <getopt.h>
+//#include <getopt.h>
+#include <popt.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <stdlib.h>
@@ -18,6 +19,12 @@ static int cntline1 = 0;
 static int cntline3 = 0;
 static int maxlen = 0;
 
+void usage(poptContext optCon,int exitcode,char *error,char *addl)
+{
+	poptPrintUsage(optCon,stderr,0);
+	if(error) fprintf(stderr,"%s:%s\n",error,addl);
+	exit(exitcode);
+}
 void *myprintst(void *data)
 {
 	struct dirent *dirp;
@@ -72,6 +79,17 @@ void *myprintst(void *data)
 	}
 */
 }
+
+dvisitn(Dlinklist list,int index,void *myprintst(void *))
+{
+	int i = 0;
+	Dlinklist dlp = list;
+	for (;i++ < index;)
+	{
+		dlp = dlp->next;
+	}
+	myprintst(dlp->data);
+}
 int cmp(const void *p1,const void *p2)
 {
 	struct dirent *dirp1 = (struct dirent *)p1;
@@ -80,7 +98,7 @@ int cmp(const void *p1,const void *p2)
 }
 int main(int argc, char **argv)
 {
-	char *pathname = ".";
+	const char *pathname = ".";
 	DIR *dir;
 	struct dirent *dirp;
 	struct stat sb;
@@ -98,6 +116,55 @@ int main(int argc, char **argv)
 	int flagm = 0;
 	int flagn = 0;
 	int flagd = 0;
+	int poptc;
+	poptContext optCon;
+	struct poptOption optionsTable[] =
+	{
+		{"all",'a',0,0,'a',"do not ignore entries starting with .",NULL},
+		{"directory",'d',0,0,'d',"list the dir itself when the path is a directory",NULL},
+		{NULL,'l',0,0,'l',"list the info with long case",NULL},
+		{NULL,'m',0,0,'m',"list all the item followed by ,",NULL},
+		{"numeric-uid-gid",'n',0,0,'n',"like -l but list the uid and gid",NULL},
+		{"reverse",'r',0,0,'r',"list the item with revers order",NULL},
+		POPT_AUTOHELP
+		{NULL,0,0,NULL,0}
+	};
+	optCon = poptGetContext(NULL,argc, argv,optionsTable,0);
+	poptSetOtherOptionHelp(optCon,"[OPTIONS]* dir");
+	while((poptc = poptGetNextOpt(optCon)) >= 0)
+	{
+		switch(poptc)
+		{
+        		case 'a':
+                		   flaga = 2, flag=2;
+                	   	   break;
+               		case 'l':
+          	           	   flagl=3,flag=3;
+                           	   break;
+			case 'r':
+			   	   flagr = 5, flag =5;
+			   	   break;
+			case 'm':
+			   		flagm = 9, flag =9; 
+			   		break;
+			case 'd':
+			   		flagd = 1, flag =13; 
+			   		break;
+			case 'n':
+			   		flagn = 1;
+			   		break;
+               		default:
+					printf("????\n");
+					exit(0);
+					break;
+			
+		}
+	
+	}
+	pathname = poptGetArg(optCon);
+	if(pathname == NULL)
+		pathname = ".";
+/*	
         while ((opt = getopt(argc, argv, "adlrmn")) != -1) 
 	{
         	switch (opt) 
@@ -137,7 +204,7 @@ int main(int argc, char **argv)
 		}	
 	
 	}
-		
+*/		
 
 //以下判断是否为目录
 if((stat(pathname, &sb)) == -1)
@@ -1719,7 +1786,7 @@ case 7:{//ls -rl
 	break;
 	
 }
-
+poptFreeContext(optCon);
 }
 //}
 //}
