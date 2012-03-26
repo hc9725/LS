@@ -161,6 +161,12 @@ int main(int argc, char **argv)
 		}
 	
 	}
+	if(poptc < -1)
+	{
+		printf("Invaled options\n");
+		usage(optCon,0,NULL,NULL);
+		exit(0);
+	}
 	pathname = poptGetArg(optCon);
 	if(pathname == NULL)
 		pathname = ".";
