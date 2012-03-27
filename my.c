@@ -14,17 +14,76 @@
 #include <grp.h>
 #include <time.h>
 #include "dbllink.h"
+#include "carg_parser.h"
 static int cntline = 0;
 static int cntline1 = 0;
 static int cntline3 = 0;
 static int maxlen = 0;
+/************this is for arg_parser****************/
+static const char * invocation_name = 0;
+void show_help()
+{
+	printf("\nUsage ./l [OPTIONS]* file\n");
+	printf("\nOPTIONS:\n"
+		" -a --all              do not ignore entries starting with .\n"
+		" -d --directory        list the dir itself when the path is a directory\n"
+		" -l                    list the info with long case\n"
+		" -m                    list all the item followed by ,\n"
+		" -n --nnumeric-uid-gid like -l but list the uid and gid\n"
+		" -r --reverse          list the item with reverse order\n"
+		" -h --help             desplay this help and exit\n");
+	printf("\nReport bugs go xxxxxx@gun.org\n");
+}
 
+void show_error( const char * msg, const int errcode, const char help)
+{
+	if( msg && msg[0])
+	{
+		fprintf(stderr, "%s: %s","l",msg);
+		if( errcode > 0)
+			fprintf(stderr, ": %s",strerror (errcode ));
+		fprintf(stderr, "\n");
+	}
+	if( help && invocation_name && invocation_name[0])
+	{
+		fprintf(stderr, "Try './l --help' for more information\n");
+	}
+}
+void internal_error( const char * const msg)
+{
+	fprintf(stderr, "./l: internal error: %s.\n",msg);
+	exit(3);
+}
+const char *optname (const int code, const struct ap_Option options[]) 
+{
+	static char buf[2] = "?";
+	int i ;
+	if(code != 0)
+	{
+		for( i = 0; options[i].code; ++i)
+		{
+			if(options[i].name)
+			{
+				return options[i].name;
+			}
+			else
+				break;
+		}
+	}
+	if( code > 0&& code <256)
+	{
+		buf[0] = code;
+	}
+	else buf[0] = '?';
+	return buf;
+}
+/*usage of popt
 void usage(poptContext optCon,int exitcode,char *error,char *addl)
 {
 	poptPrintUsage(optCon,stderr,0);
 	if(error) fprintf(stderr,"%s:%s\n",error,addl);
 	exit(exitcode);
-}
+}*/
 void *myprintst(void *data)
 {
 	struct dirent *dirp;
@@ -116,6 +175,80 @@ int main(int argc, char **argv)
 	int flagm = 0;
 	int flagn = 0;
 	int flagd = 0;
+
+	
+	const struct ap_Option options[] = 
+	{
+		{'h', "help",        		ap_no},
+		{'a', "all",         		ap_no},
+		{'d', "directory",   		ap_no},
+		{'l', 0,             		ap_no},
+		{'m', 0,             		ap_no},
+		{'n', "numeric-uidgid",        	ap_no},
+		{'r', "reverse",       		ap_no},
+		{0,  0,                         ap_no}
+	};
+	struct Arg_parser parser;
+	int argind;
+	invocation_name = argv[0];
+	if( !ap_init( &parser, argc, argv, options,0))
+	{
+		show_error("Memory exhausted.",0,0);
+		return 1;
+	}
+	if( ap_error(&parser))
+	{
+		show_error( ap_error(&parser),0,1);
+		return 1;
+	}
+	for( argind =0; argind < ap_arguments(&parser); ++argind)
+	{
+		const int code = ap_code (&parser, argind);
+		if( !code )
+			break;
+		switch( code )
+		{
+        		case 'a':
+                		   flaga = 2, flag=2;
+                	   	   break;
+               		case 'l':
+          	           	   flagl=3,flag=3;
+                           	   break;
+			case 'r':
+			   	   flagr = 5, flag =5;
+			   	   break;
+			case 'm':
+			   		flagm = 9, flag =9; 
+			   		break;
+			case 'd':
+			   		flagd = 1, flag =13; 
+			   		break;
+			case 'n':
+			   		flagn = 1;
+			   		break;
+			case 'h':	show_help();
+					exit(0);
+					break;
+               		default:	internal_error("uncaught option");
+					exit(0);
+					break;
+		}
+	}
+	for( argind = 0; argind < ap_arguments( &parser); ++argind)
+	{
+		const int code = ap_code (&parser, argind);
+		const char * const arg = ap_argument(&parser, argind);
+		if(code)
+		{
+			NULL;
+		}
+		else
+		{
+			pathname = arg;
+		}
+	}
+
+/*   with popt
 	int poptc;
 	poptContext optCon;
 	struct poptOption optionsTable[] =
@@ -170,7 +303,8 @@ int main(int argc, char **argv)
 	pathname = poptGetArg(optCon);
 	if(pathname == NULL)
 		pathname = ".";
-/*	
+*/
+/*with getopt	
         while ((opt = getopt(argc, argv, "adlrmn")) != -1) 
 	{
         	switch (opt) 
@@ -1792,7 +1926,8 @@ case 7:{//ls -rl
 	break;
 	
 }
-poptFreeContext(optCon);
+//it is for popt
+//poptFreeContext(optCon);
 }
 //}
 //}
